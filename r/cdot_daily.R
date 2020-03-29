@@ -40,11 +40,13 @@ d_d1_adj %>%
   print(n = 300)
 
 
-d_d1_adj %>% 
+d_d1_adj_agg <- d_d1_adj%>% 
   filter(date >= "2019-07-01") %>% 
   group_by(date) %>% 
   summarize(d1_raw = sum(d1_total, na.rm = TRUE),
-            d1_adj = sum(d1_adj, na.rm = TRUE)) %>% 
+            d1_adj = sum(d1_adj, na.rm = TRUE))
+
+d_d1_adj_agg %>% 
   gather(key = measure, value = d1_totals, -date) %>% 
   ggplot(aes(x = date,
              y = d1_totals,
@@ -81,5 +83,30 @@ d_d1_adj %>%
 
 
 
-ts_d1_adj <- d_d1_adj %>% 
-  as_tsibble(key = "county", index = "date")
+ts_adj <- d_d1_adj_agg %>% 
+  as_tsibble(index = "date")
+
+ts_adj %>% 
+  mutate(d7_adj = slide_dbl(.x = d1_adj, .f = mean, .size = 7),
+         d14_adj = slide_dbl(.x = d1_adj, .f = mean, .size = 14),
+         d28_adj = slide_dbl(.x = d1_adj, .f = mean, .size = 28)) %>% 
+  gather(key = period, value = moving_avg, d7_adj, d14_adj, d28_adj) %>% 
+  mutate(period = fct_relevel(period, "d28_adj", "d14_adj")) %>% 
+  ggplot(aes(x = date,
+             y = moving_avg,
+             colour = period,
+             linetype = period)) + 
+  geom_line(na.rm = TRUE) +
+  scale_x_date(date_labels = "%Y-%m-%d") +
+  scale_y_continuous(labels = scales::comma) +
+  scale_colour_manual(values = c("black", "steelblue4", "steelblue2")) +
+  # scale_linetype_manual(values = c(1, 3, 2)) +
+  expand_limits(y = 0) +
+  labs(x = "measure date",
+       y = "volume totals (moving avg.)",
+       linetype = "period of moving average",
+       colour = "period of moving average",
+       title = "unreviewed, moving averages of median imputed daily volume totals",
+       subtitle = "date aggregated by device to county for all counties") +
+  theme_classic() +
+  theme(legend.position = "bottom")
