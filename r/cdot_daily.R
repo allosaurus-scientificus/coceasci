@@ -1,6 +1,6 @@
 library(tidyverse)
 
-sql_cdot <- read_file("~/Documents/repos/coced2/sql/cdot_daily.sql")
+sql_cdot <- read_file("~/Documents/repos/coced2/sql/cdot_daily_county.sql")
 
 conn <- fouu::connect_coce()
 
