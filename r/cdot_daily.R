@@ -3,17 +3,19 @@ library(lubridate)
 library(tsibble)
 
 sql_cdot <- read_file("~/Documents/repos/coceasci/sql/cdot_daily_county.sql")
+sql_cdot_adj <- read_file("~/Documents/repos/coceasci/sql/cdot_daily_county_adj.sql")
 
 conn <- fouu::connect_coce()
 
 d_cdot <- DBI::dbGetQuery(conn, sql_cdot)
+d_cdot_adj <- DBI::dbGetQuery(conn, sql_cdot_adj)
 
 DBI::dbDisconnect(conn)
 
 rm(conn)
 
 glimpse(d_cdot)
-
+glimpse(d_cdot_adj)
 
 d_d1 <- d_cdot %>% 
   as_tibble() %>% 
@@ -90,6 +92,32 @@ ts_adj %>%
   mutate(d7_adj = slide_dbl(.x = d1_adj, .f = mean, .size = 7),
          d14_adj = slide_dbl(.x = d1_adj, .f = mean, .size = 14),
          d28_adj = slide_dbl(.x = d1_adj, .f = mean, .size = 28)) %>% 
+  gather(key = period, value = moving_avg, d7_adj, d14_adj, d28_adj) %>% 
+  mutate(period = fct_relevel(period, "d28_adj", "d14_adj")) %>% 
+  ggplot(aes(x = date,
+             y = moving_avg,
+             colour = period,
+             linetype = period)) + 
+  geom_line(na.rm = TRUE) +
+  scale_x_date(date_labels = "%Y-%m-%d") +
+  scale_y_continuous(labels = scales::comma) +
+  scale_colour_manual(values = c("black", "steelblue4", "steelblue2")) +
+  # scale_linetype_manual(values = c(1, 3, 2)) +
+  expand_limits(y = 0) +
+  labs(x = "measure date",
+       y = "volume totals (moving avg.)",
+       linetype = "period of moving average",
+       colour = "period of moving average",
+       title = "unreviewed, moving averages of median imputed daily volume totals",
+       subtitle = "date aggregated by device to county for all counties") +
+  theme_classic() +
+  theme(legend.position = "bottom")
+
+
+d_cdot_adj %>% 
+  filter(date >= "2019-07-01") %>% 
+  group_by(date) %>% 
+  summarize(d1_adj = sum(d1_total_adj, na.rm = TRUE)) %>% 
   gather(key = period, value = moving_avg, d7_adj, d14_adj, d28_adj) %>% 
   mutate(period = fct_relevel(period, "d28_adj", "d14_adj")) %>% 
   ggplot(aes(x = date,

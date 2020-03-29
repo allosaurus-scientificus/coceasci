@@ -83,10 +83,8 @@ order by 1, 2
 
 
 /*  testing, confirming adams has no cars or trucks but things that go
-
 select * 
   from dim.cdot_atr_daily_fact
     inner join dim.cdot_device_inventory on dim.cdot_atr_daily_fact.device = dim.cdot_device_inventory.device_desc
 where dim.cdot_device_inventory.county = 'Adams'
-
 */
