@@ -43,7 +43,7 @@ d_d1_adj %>%
 d_d1_adj %>% 
   filter(date >= "2019-07-01") %>% 
   group_by(date) %>% 
-  summarize(d1 = sum(d1_total, na.rm = TRUE),
+  summarize(d1_raw = sum(d1_total, na.rm = TRUE),
             d1_adj = sum(d1_adj, na.rm = TRUE)) %>% 
   gather(key = measure, value = d1_totals, -date) %>% 
   ggplot(aes(x = date,
@@ -74,7 +74,7 @@ d_d1_adj %>%
        y = "volume totals",
        linetype = "raw or adjusted",
        colour = "raw or adjusted",
-       title = "unreviewed, sum of raw (d1) and median imputed (d1_adj) daily volume from cdot",
+       title = "unreviewed, sum of unadjusted (d1_raw) and median imputed (d1_adj) daily volume from cdot",
        subtitle = "date aggregated by device to county for all counties") +
   theme_classic() +
   theme(legend.position = "bottom")
