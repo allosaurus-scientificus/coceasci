@@ -1,3 +1,4 @@
+--  mitigates null by interpolation of county, month, and weekend medians
 --  gaps in record so need all dates
 with date_range as (
 
@@ -76,6 +77,7 @@ select cxd.county as county
   , lag(coalesce(cd.d1_total, m.d1_total_p50), 7) over (partition by cxd.county order by cxd.measure_date asc) as d7_total_adj
   , lag(coalesce(cd.d1_total, m.d1_total_p50), 14) over (partition by cxd.county order by cxd.measure_date asc) as d14_total_adj
   , lag(coalesce(cd.d1_total, m.d1_total_p50), 28) over (partition by cxd.county order by cxd.measure_date asc) as d28_total_adj
+/*  because of data quality issues, may not be needed, usesful
 --  cars
   , cd.d1_car
   , coalesce(cd.d1_car, m.d1_car_p50) as d1_car_adj
@@ -94,7 +96,7 @@ select cxd.county as county
   , lag(coalesce(cd.d1_unbinned, m.d1_unbinned_p50), 7) over (partition by cxd.county order by cxd.measure_date asc) as d7_unbinned_adj
   , lag(coalesce(cd.d1_unbinned, m.d1_unbinned_p50), 14) over (partition by cxd.county order by cxd.measure_date asc) as d14_unbinned_adj
   , lag(coalesce(cd.d1_unbinned, m.d1_unbinned_p50), 28) over (partition by cxd.county order by cxd.measure_date asc) as d28_unbinned_adj
-
+*/
 from counties_x_dates as cxd
   left join county_days as cd on (cxd.county = cd.county and cxd.measure_date = cd.measure_date)
   left join medians as m on (cxd.county = m.county and cxd.measure_month = m.measure_month and cxd.weekend = m.weekend)
