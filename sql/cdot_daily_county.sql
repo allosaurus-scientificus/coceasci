@@ -50,20 +50,23 @@ county_days as (
 --  create 7 day interval lags for each mesaure
 select cxd.county as county
   , cxd.measure_date as date
-  , d1_total
 --  totals
+  , cd.d1_total
   , lag(cd.d1_total, 7) over (partition by cxd.county order by cxd.measure_date asc) as d7_total
   , lag(cd.d1_total, 14) over (partition by cxd.county order by cxd.measure_date asc) as d14_total
   , lag(cd.d1_total, 28) over (partition by cxd.county order by cxd.measure_date asc) as d28_total
 --  cars
+  , cd.d1_car
   , lag(cd.d1_car, 7) over (partition by cxd.county order by cxd.measure_date asc) as d7_car
   , lag(cd.d1_car, 14) over (partition by cxd.county order by cxd.measure_date asc) as d14_car
   , lag(cd.d1_car, 28) over (partition by cxd.county order by cxd.measure_date asc) as d28_car
 --  trucks
+  , cd.d1_truck
   , lag(cd.d1_truck, 7) over (partition by cxd.county order by cxd.measure_date asc) as d7_truck
   , lag(cd.d1_truck, 14) over (partition by cxd.county order by cxd.measure_date asc) as d14_truck
   , lag(cd.d1_truck, 28) over (partition by cxd.county order by cxd.measure_date asc) as d28_truck
 --  unbinned
+  , cd.d1_truck
   , lag(cd.d1_unbinned, 7) over (partition by cxd.county order by cxd.measure_date asc) as d7_unbinned
   , lag(cd.d1_unbinned, 14) over (partition by cxd.county order by cxd.measure_date asc) as d14_unbinned
   , lag(cd.d1_unbinned, 28) over (partition by cxd.county order by cxd.measure_date asc) as d28_unbinned
