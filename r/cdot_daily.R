@@ -66,12 +66,14 @@ d_d1_adj_agg <- d_d1_adj%>%
             d1_adj = sum(d1_adj, na.rm = TRUE))
 
 d_d1_adj_agg %>% 
-  filter(date >= "2019-07-01") %>% 
+  filter(date >= "2020-01-01") %>% 
   gather(key = measure, value = d1_totals, -date) %>% 
   ggplot(aes(x = date,
              y = d1_totals,
-             linetype = measure)) +
+             linetype = measure,
+             shape = measure)) +
   geom_line() +
+  geom_point() +
   # geom_vline(xintercept = ymd("2020-03-26"),
   #            colour = "steelblue4",
   #            linetype = 4) +
@@ -86,6 +88,7 @@ d_d1_adj_agg %>%
   labs(x = "measure date",
        y = "volume totals",
        linetype = "raw or adjusted",
+       shape = "raw or adjusted",
        colour = "raw or adjusted",
        title = "unreviewed, sum of unadjusted (d1_raw) and median imputed (d1_adj) daily volume from cdot",
        subtitle = "date aggregated by device to county for all counties") +
