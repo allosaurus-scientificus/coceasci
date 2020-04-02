@@ -63,17 +63,20 @@ d_d1_adj_agg <- d_d1_adj%>%
   group_by(date) %>% 
   summarize(d1_raw = sum(d1_total, na.rm = TRUE),
             # d1_raw = sum(d1_truck, na.rm = TRUE),
-            d1_adj = sum(d1_adj, na.rm = TRUE))
+            d1_adj = sum(d1_adj, na.rm = TRUE),
+            too_low = (d1_raw / d1_adj) - 1 < -.05)
 
 d_d1_adj_agg %>% 
-  filter(date >= "2020-01-01") %>% 
-  gather(key = measure, value = d1_totals, -date) %>% 
+  # filter(date >= "2020-01-01") %>% 
+  filter(date >= "2019-10-01") %>% 
+  gather(key = measure, value = d1_totals, d1_raw, d1_adj) %>% 
   ggplot(aes(x = date,
              y = d1_totals,
-             linetype = measure,
-             shape = measure)) +
+             linetype = measure)) +
   geom_line() +
-  geom_point() +
+  geom_point(aes(colour = too_low & measure == "d1_raw"),
+             shape = 21, 
+             size = 3) +
   # geom_vline(xintercept = ymd("2020-03-26"),
   #            colour = "steelblue4",
   #            linetype = 4) +
@@ -85,11 +88,12 @@ d_d1_adj_agg %>%
   #          hjust = "right") +
   scale_x_date(date_labels = "%Y-%m-%d") +
   scale_y_continuous(labels = scales::comma) +
+  scale_colour_manual(values = c("black", "red")) +
   labs(x = "measure date",
        y = "volume totals",
        linetype = "raw or adjusted",
        shape = "raw or adjusted",
-       colour = "raw or adjusted",
+       colour = "> 5% difference",
        title = "unreviewed, sum of unadjusted (d1_raw) and median imputed (d1_adj) daily volume from cdot",
        subtitle = "date aggregated by device to county for all counties") +
   theme_classic() +
