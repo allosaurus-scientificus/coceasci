@@ -43,8 +43,9 @@ d_d1 <- d_cdot %>%
   
 d_medians <- d_d1 %>% 
   group_by(county, measure_month, weekend) %>% 
-  summarize(d1_median = as.integer(floor(median(d1_total, na.rm = TRUE))))
+  summarize(d1_median = as.integer(floor(median(d1_total, na.rm = TRUE)))) %>% 
   # summarize(d1_median = as.integer(floor(median(d1_truck, na.rm = TRUE))))
+  ungroup()
 
 ##  if null, replace with median
 d_d1_adj <- d_d1 %>% 
