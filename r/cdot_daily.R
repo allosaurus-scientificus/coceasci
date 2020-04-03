@@ -24,13 +24,16 @@ d_cdot %>%
   group_by(date) %>% 
   summarize(d1_null = n()) %>% 
   ungroup() %>% 
-  filter() %>% 
   ggplot(aes(x = date, 
              y = d1_null)) +
   geom_line() +
   geom_point() +
   scale_x_date(date_labels = "%m-%d",
-               date_breaks = "3 days") +
+               date_breaks = "7 days") +
+  labs(x = "date",
+       y = "null values",
+       title = "null values in cdot_atr_daily_fact") +
+  expand_limits(y = 0) +
   theme_linedraw()
 
 
