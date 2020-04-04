@@ -19,12 +19,6 @@ d_mmx %>%
   summarize(n_null = sum(is.na(median_distance_traveled_km))) %>% 
   print(n = 36)
 
-d_mmx %>% 
-  filter(between(date, ymd("2020-03-14"), ymd("2020-03-18")) 
-         & county == "Denver" 
-         & municipality == "Denver") %>% 
-  select(date, median_distance_traveled_km, delta_median_distance_traveled_km)
-
 
 x_day <- d_mmx %>% 
   group_by(date) %>% 
@@ -50,12 +44,74 @@ x_day %>%
        subtitle = "expanded municipality_mobility: 1 row per county per municipality per day") +
   theme_classic()
 
+##  example
+# d_mmx %>% 
+#   filter(between(date, ymd("2020-03-14"), ymd("2020-03-18")) 
+#          & county == "Denver" 
+#          & municipality == "Denver") %>% 
+#   select(date, median_distance_traveled_km, delta_median_distance_traveled_km)
+
+counties <- unique(pull(d_mmx, county))
+
+plot_x_county <- function(df = d_mmx, x = "Adams") {
+  
+  d_county <- filter(df, county == x)
+  
+  n_palities <- n_distinct(pull(d_county, municipality))
+  
+  if (n_palities > 6) {
+    
+    six_randos <- d_county %>% 
+      pull(municipality) %>% 
+      unique() %>% 
+      sample(6)
+    
+    d_plot <- d_county %>% 
+      filter(municipality %in% six_randos)
+    
+    } else {
+    
+    d_plot <- d_county
+    
+    }
+  
+  p <- d_plot %>% 
+      ggplot(aes(x = date,
+                 y = median_distance_traveled_km,
+                 # linetype = municipality,
+                 shape = municipality)) +
+      geom_point(size = 3,
+                alpha = I(2/3),
+                na.rm = TRUE) +
+      geom_line(linetype = 3, na.rm = TRUE) +
+      geom_vline(xintercept = ymd("2020-03-13"),
+                 colour = "orangered",
+                 linetype = 2) +
+      scale_x_date(date_labels = "%m-%d") +
+      labs(title = paste0(x, " municipality mobility, unreviewed"),
+           subtitle = "if >6 municipalities, random 6 municipalities used") +
+      theme_linedraw() +
+      theme(legend.position = "bottom")
+    
+  return(p)
+}
 
 
-source("~/get_census_api.R")
-tidycensus::census_api_key(my_api_key)
-d_tracts <- tidycensus::get_acs(geography = "tract",
-                                 ## table for concept == "SEX BY AGE"
-                                 table = "B01001", 
-                                 state = "CO", 
-                                 geometry = TRUE)
+plot_x_county(x = "Boulder")
+
+plot_x_county(x = "Denver")
+
+plot_x_county()
+
+counties %>% 
+  sample(4) %>% 
+  map(~plot_x_county(x = .x))
+  
+
+# source("~/get_census_api.R")
+# tidycensus::census_api_key(my_api_key)
+# d_tracts <- tidycensus::get_acs(geography = "tract",
+#                                  ## table for concept == "SEX BY AGE"
+#                                  table = "B01001", 
+#                                  state = "CO", 
+#                                  geometry = TRUE)
