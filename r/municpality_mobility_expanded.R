@@ -21,7 +21,7 @@ d_mmx %>%
 
 
 x_day <- d_mmx %>% 
-  group_by(date) %>% 
+  group_by(measure_date) %>% 
   summarize(n_rows = n(),
             n_counties = n_distinct(county),
             n_municipalities = n_distinct(county),
@@ -31,8 +31,8 @@ x_day <- d_mmx %>%
 print(x_day, n = 40)
 
 x_day %>% 
-  filter(between(date, ymd("2020-03-03"), ymd("2020-03-31"))) %>% 
-  ggplot(aes(x = date,
+  filter(between(measure_date, ymd("2020-03-03"), ymd("2020-03-31"))) %>% 
+  ggplot(aes(x = measure_date,
              y = median_km_null)) +
   geom_line() +
   geom_point() +
@@ -79,11 +79,11 @@ plot_x_county <- function(df = d_mmx, x = "Adams") {
   }
   
   p <- d_plot %>% 
-    ggplot(aes(x = date,
+    ggplot(aes(x = measure_date,
                y = median_distance_traveled_km,
                # linetype = municipality,
                shape = municipality)) +
-    geom_point(size = 3,
+    geom_point(size = 2,
                alpha = I(2/3),
                na.rm = TRUE) +
     geom_line(linetype = 3, na.rm = TRUE) +
