@@ -1,7 +1,7 @@
 --  gaps in record so need all dates
 with date_range as (
 
-  select ds::date as date
+  select ds::date as measure_date
   from generate_series('2020-03-01'::date, (current_date - interval '1 day')::date, '1 day'::interval) as ds
 
 ),
@@ -23,7 +23,7 @@ counties_municipalities_dates as (
 
   select distinct counties_municipalities.county
     , counties_municipalities.municipality
-    , date_range.date
+    , date_range.measure_date
   from counties_municipalities
     cross join date_range
   order by 1, 2
@@ -32,8 +32,7 @@ counties_municipalities_dates as (
 
 municipality_mobility as (
   
-  select date
-    , country
+  select measure_date
     , state
     , replace(county, ' County', '')::text as county
     , municipality
@@ -56,4 +55,4 @@ select cmd.*
   
 from counties_municipalities_dates as cmd 
   left join municipality_mobility as mm 
-    on (cmd.county = mm.county and cmd.municipality = mm.municipality and cmd.date = mm.date)
+    on (cmd.county = mm.county and cmd.municipality = mm.municipality and cmd.measure_date = mm.measure_date)
