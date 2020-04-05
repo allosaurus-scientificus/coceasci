@@ -53,6 +53,9 @@ x_day %>%
 
 counties <- unique(pull(d_mmx, county))
 
+y_limit <- floor(max(d_mmx$median_distance_traveled_km, na.rm = TRUE)) + 1
+
+
 plot_x_county <- function(df = d_mmx, x = "Adams") {
   
   d_county <- filter(df, county == x)
@@ -69,30 +72,35 @@ plot_x_county <- function(df = d_mmx, x = "Adams") {
     d_plot <- d_county %>% 
       filter(municipality %in% six_randos)
     
-    } else {
+  } else {
     
     d_plot <- d_county
     
-    }
+  }
   
   p <- d_plot %>% 
-      ggplot(aes(x = date,
-                 y = median_distance_traveled_km,
-                 # linetype = municipality,
-                 shape = municipality)) +
-      geom_point(size = 3,
-                alpha = I(2/3),
-                na.rm = TRUE) +
-      geom_line(linetype = 3, na.rm = TRUE) +
-      geom_vline(xintercept = ymd("2020-03-13"),
-                 colour = "orangered",
-                 linetype = 2) +
-      scale_x_date(date_labels = "%m-%d") +
-      labs(title = paste0(x, " municipality mobility, unreviewed"),
-           subtitle = "if >6 municipalities, random 6 municipalities used") +
-      theme_linedraw() +
-      theme(legend.position = "bottom")
-    
+    ggplot(aes(x = date,
+               y = median_distance_traveled_km,
+               # linetype = municipality,
+               shape = municipality)) +
+    geom_point(size = 3,
+               alpha = I(2/3),
+               na.rm = TRUE) +
+    geom_line(linetype = 3, na.rm = TRUE) +
+    geom_vline(xintercept = ymd("2020-03-13"),
+               colour = "orangered",
+               linetype = 2) +
+    scale_x_date(date_labels = "%m-%d") +
+    scale_y_continuous(breaks = seq(0, y_limit, 2),
+                       limits = c(0, y_limit)) +
+    expand_limits(y = 0) +
+    labs(title = paste0(x, " municipality mobility, unreviewed"),
+         subtitle = "if >6 municipalities, random 6 municipalities used") +
+    theme_linedraw() +
+    # theme_classic() +
+    theme(legend.position = "bottom",
+          panel.grid.minor = element_blank())
+  
   return(p)
 }
 
@@ -104,7 +112,7 @@ plot_x_county(x = "Denver")
 plot_x_county()
 
 counties %>% 
-  sample(4) %>% 
+  sample(9) %>% 
   map(~plot_x_county(x = .x))
   
 
