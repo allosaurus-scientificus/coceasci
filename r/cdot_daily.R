@@ -38,7 +38,7 @@ d_cdot %>%
 
 
 d_d1 <- d_cdot %>%
-  filter(date < Sys.Date()) %>% 
+  filter(date < Sys.Date() - days(1)) %>% 
   as_tibble() %>% 
   mutate(weekend = wday(date) %in% c(1, 7),
          measure_month = floor_date(date, "month")) %>% 
